@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter</title>
+</head>
+<body>
+    <p id="count">0</p>
+    <button id="decrease">-</button>
+    <button id="increase">+</button>
+</body>
+<script>
+    const apiUrl = "http://3.38.168.108:8000";
+    const countElement = document.getElementById('count');
+    const decreaseButton = document.getElementById('decrease');
+    const increaseButton = document.getElementById('increase'); // 수정: 변수 이름 통일
+
+    async function getCount() {
+        try {
+            const response = await fetch(`${apiUrl}/count`);
+            const data = await response.json();
+            countElement.textContent = data.count;
+        } catch (error) {
+            console.error("Error fetching count:", error);
+        }
+    }
+
+    async function updateCount(action) {
+        try {
+            const response = await fetch(`${apiUrl}/update_count`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ action: action }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Error updating count:", errorData);
+                return;
+            }
+
+            const data = await response.json();
+            countElement.textContent = data.count;
+        } catch (error) {
+            console.error("Error updating count:", error);
+        }
+    }
+
+    decreaseButton.addEventListener("click", () => updateCount("decrease"));
+    increaseButton.addEventListener("click", () => updateCount("increase"));
+
+    getCount();
+</script>
+</html>
